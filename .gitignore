@@ -1,0 +1,15 @@
+# .NET 构建产物
+bin/
+obj/
+publish/
+artifacts/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# 打包产物
+*.zip

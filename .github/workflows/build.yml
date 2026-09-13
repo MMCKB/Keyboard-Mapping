@@ -1,0 +1,53 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: '创建 GitHub Release 并上传构建产物'
+        type: boolean
+        default: true
+      version:
+        description: 'Release 版本号（留空自动生成 v1.0.<运行编号>）'
+        required: false
+        default: ''
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish (self-contained win-x64)
+        run: dotnet publish KeyRemapper.csproj -c Release -p:Platform=x64 -r win-x64 --self-contained true -o publish
+
+      - name: Zip package
+        shell: pwsh
+        run: Compress-Archive -Path publish/* -DestinationPath KeyRemapper-win-x64.zip -Force
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: KeyRemapper-win-x64
+          path: KeyRemapper-win-x64.zip
+
+      - name: Create Release
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.create_release }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
+        run: |
+          $tag = "${{ inputs.version }}".Trim()
+          if ([string]::IsNullOrWhiteSpace($tag)) { $tag = "v1.0.$($env:GITHUB_RUN_NUMBER)" }
+          gh release create "$tag" "KeyRemapper-win-x64.zip" --title "键盘映射 $tag" --generate-notes
+          Write-Host "Release $tag 已创建"

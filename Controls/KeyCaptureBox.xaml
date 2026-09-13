@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="KeyRemapper.Controls.KeyCaptureBox"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <TextBox x:Name="Box"
+             IsReadOnly="True"
+             MinWidth="220"
+             HorizontalAlignment="Left"
+             TextAlignment="Center"
+             PlaceholderText="点击这里，然后直接按下按键"
+             GotFocus="OnGotFocus"
+             LostFocus="OnLostFocus"
+             PointerPressed="OnBoxPointerPressed"
+             KeyDown="OnKeyDown"/>
+</UserControl>
